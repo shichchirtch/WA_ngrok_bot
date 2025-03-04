@@ -24,13 +24,14 @@
         <ul id="cartItems">
             {% for item in cart %}
                 <li>{{ item.name }} - {{ item.quantity }} шт.</li> <!-- Название пиццы и количество -->
-                <span>{{ 15 * item.quantity }}€</span> <!-- Подсчёт стоимости для каждой позиции -->
+
+                <span>{{item.price}} €</span> <!-- Подсчёт стоимости для каждой позиции -->
             {% endfor %}
         </ul>
 
         <!-- Отображение итоговой суммы заказа -->
-        <h2>Итого: <span id="totalPrice">{{ total_price }}€</span></h2>
-{# зачем тут тэг span#}
+        <h2>Итого: <span id="totalPrice">{{ total_price }} €</span></h2>
+
         <!-- Форма оформления заказа -->
         <form id="orderForm">
             <label for="address"><b>Адрес доставки:</b></label>
@@ -59,7 +60,5 @@
         <a href="https://t.me/smart_bot_empire" target="_blank">Produced by Smart Bot Empire</a>
     </footer>
 </body>
-</html>
-
 
 
