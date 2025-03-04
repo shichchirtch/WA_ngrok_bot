@@ -18,18 +18,24 @@
     </header>
 
     <main>
-    <h1>{{ pizza.name }}</h1>
-    <img src="{{ url_for('static', filename=pizza.image) }}" alt="{{ pizza.name }}">
-    <p>{{ pizza.description }}</p>
-    <p class="price" id="price">Цена: 15€</p>
+    <h1 class="pizza-title">{{ pizza.name }}</h1>
 
+    <img src="{{ url_for('static', filename=pizza.image) }}" alt="{{ pizza.name }}">
+
+    <p class="pizza-description">{{ pizza.description }}</p>
+    <div class="pr_desc">
+    <span  id="price" data-price="{{ pizza.price }}">{{ pizza.price }} €</span>
+    </div>
     <div class="quantity">
         <button id="decrease">-</button>
         <span id="quantity">1</span>
         <button id="increase">+</button>
     </div>
 
-    <button id="add-to-cart" data-pizza-id="{{ pizza.id }}">Добавить в корзину</button>
+    <button id="add-to-cart" data-pizza-id="{{ pizza.id }}"
+                             data-name="{{ pizza.name }}"
+                             data-price="{{ pizza.price }}"
+    >Добавить в корзину</button>
     <a href="{{ url_for('index') }}">Вернуться в меню</a>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
@@ -39,5 +45,4 @@
     </footer>
 </body>
 </html>
-
 

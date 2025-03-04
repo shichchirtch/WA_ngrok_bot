@@ -17,7 +17,9 @@ async def process_start_command(message: Message, state: FSMContext):
         print(message.from_user.id)
         users_db[message.from_user.id] = deepcopy(user_dict)
         await state.set_state(FSM_ST.after_start)
-        await state.set_data({'card_list':[], 'cart_pos':0, 'timer':0, 'leader':0})
+        bot_dict = await dp.storage.get_data(key=bot_storage_key)  # Получаю словарь бота
+        bot_dict[message.from_user.id] = {'name':user_name, 'order':{}}  # Создаю пустой словарь для заметок юзера
+        await dp.storage.update_data(key=bot_storage_key, data=bot_dict)  # Обновляю словарь бота
         await message.answer(text=f'{html.bold(html.quote(user_name))}, '
                                   f'Hallo !\nI am MINI APP Bot'
                                   f'🎲',
@@ -26,38 +28,6 @@ async def process_start_command(message: Message, state: FSMContext):
     else:
         print("else works")
 
-
-@ch_router.message(Command('send'))
-async def send_command(message: Message, state: FSMContext):
-    await state.set_state(FSM_ST.swnd_msg)
-    await message.answer('Enter you message')
-
-# First Accaunt = 6685637602
-# Second Accaunt = 6831521683
-
-@ch_router.message(StateFilter(FSM_ST.swnd_msg))
-async def sending_msg_other_user(message: Message, state: FSMContext):
-    prefix, us_id, text_msg = message.text.split('$')
-    user_id = int(us_id)
-    try:
-        await bot.send_message(chat_id=user_id, text=text_msg)
-        await message.answer('Message is sent !')
-    except Exception as e:
-        await message.answer(f'Msg is not sent due to {e}')
-    await state.set_state(FSM_ST.after_start)
-
-
-# @ch_router.message()
-# async def handle_web_app_data(msg: Message):
-#     print(msg)  # Выводим весь msg для анализа
-#     if msg.web_app_data:
-#         print('we are hier')
-#         data = msg.web_app_data.data
-#         await msg.answer(f"Вы отправили: {data}")
-#     else:
-#         await msg.answer("Данные не найдены!")
-
-# curl https://api.telegram.org/bot7961544857:AAGoiBeimCnjEL2fbixAxRHUipBKVFHi2bg/getUpdates
 
 @ch_router.message(Command('help'))
 async def help_command(message: Message, state: FSMContext):
