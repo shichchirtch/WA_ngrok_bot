@@ -23,6 +23,14 @@ document.getElementById("orderForm").addEventListener("submit", function(event) 
         alert("Телефон должен содержать только цифры и знак +, длиной от 12 до 14 символов.");
         return; // Прекращаем выполнение, если номер не соответствует требованиям
     }
+
+     // Получаем Telegram ID юзера (его нужно передавать из WebApp в `window.Telegram.WebApp.initDataUnsafe.user.id`)
+    const user_id = window.Telegram.WebApp.initDataUnsafe?.user?.id || null;
+
+    if (!user_id) {
+        alert("Ошибка: Не удалось получить Telegram ID.");
+        return;
+    }
     const cartItems = JSON.parse(localStorage.getItem("cart")) || [];  // Достаём корзину из localStorage
     console.log('cartItems = ', cartItems[0]['quantity'])
 
@@ -37,7 +45,7 @@ document.getElementById("orderForm").addEventListener("submit", function(event) 
     fetch(`/cart`, {
         method: "POST", // HTTP-метод запроса
         headers: { "Content-Type": "application/json" }, // Указываем, что отправляем JSON
-        body: JSON.stringify({ address, phone, payment, order: cartItems}), // Преобразуем объект в JSON-строку
+        body: JSON.stringify({ user_id, address, phone, payment, order: cartItems}), // Преобразуем объект в JSON-строку
 
     })
     .then(response => response.json()) // Преобразуем ответ сервера в JSON

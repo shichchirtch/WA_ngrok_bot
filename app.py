@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, request, redirect, jsonify
-from external_functions import send_telegram_message
+from external_functions import send_telegram_message, update_bot_database
 
 app = Flask(__name__)
 
@@ -15,6 +15,24 @@ pizzas = [
      "description": "Томатный соус, моцарелла, ананасы, ветчина.", 'price':18}]
 
 cart = []  # Корзина для хранения выбранных пицц
+
+# @app.after_request
+# def add_header(response):
+#     response.headers['X-Frame-Options'] = 'ALLOW-FROM https://web.telegram.org'
+#     response.headers['Content-Security-Policy'] = "frame-ancestors 'self' https://web.telegram.org"
+#     return response
+
+# @app.after_request
+# def add_header(response):
+#     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+#     response.headers['Content-Security-Policy'] = "frame-ancestors *"
+#     return response
+
+@app.route('/receive_telegram_data', methods=['POST'])
+def receive_telegram_data():
+    data = request.json  # Получаем JSON с фронта
+    print("📦 Полученные данные от Telegram:", data)  # Логируем в консоль
+    return jsonify({"success": True, "received_data": data})  # Отправляем ответ
 
 @app.route("/")
 def index():
@@ -39,8 +57,7 @@ def cart_page():
         data = request.get_json()
 
         print("Полученные данные:", data)  # ✅ Проверяем, что приходит на сервер
-
-
+        user_id = data.get("user_id", 'not data')
         address = data.get("address")  #   это извлечение значения по ключу "address" из словаря data
         phone = data.get("phone")
         payment = data.get("payment")
@@ -73,14 +90,17 @@ def cart_page():
         message += f"\n💰 *Сумма к оплате:* {total_price} €"
 
         print('Telgram Сообщение = ', message)  # Логируем заказ в консоль (для проверки)
-
+        if not order:
+            return jsonify({"success": False, "error": "Заказ пуст!"}), 400
         send_telegram_message(message)
 
         # Симуляция оформления заказа (можно заменить на логику сохранения в БД)
         print(f"Заказ оформлен! Адрес: {address}, Телефон: {phone}, Оплата: {payment}")
-
+        # Обновляем базу данных бота
+        update_bot_database(user_id, address, phone, payment)
         cart.clear()  # Очищаем корзину после оформления заказа
         return jsonify({"success": True})
+
 ################## Часть GET
     # Рассчитываем итоговую стоимость заказа
     print('cart = ', cart)

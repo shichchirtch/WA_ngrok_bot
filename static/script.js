@@ -16,10 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+
+
         let pricePizzaElement = document.querySelector("#price");
         let basePrice = parseFloat(pricePizzaElement.getAttribute("data-price")); // Берём цену из HTML
         let quantity = 1;
-        const BASE_URL = "https://720a-2a00-20-8-1dfb-c3-5496-c60c-67b1.ngrok-free.app";
+        const BASE_URL = "https://b199-2a00-20-8-1dfb-3987-28ae-e765-37da.ngrok-free.app";
 
         decreaseBtn.addEventListener("click", function () {
             if (quantity > 1) {
