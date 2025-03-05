@@ -1,3 +1,4 @@
+import uvicorn
 from command_handlers import ch_router
 # from start_menu import set_main_menu
 from bot_instance import bot, bot_storage_key, dp
@@ -6,7 +7,11 @@ import threading, asyncio
 
 def run_flask():
     app.run(host="0.0.0.0", port=5000, debug=False)  # ОТКЛЮЧИ debug=True!
-    # 127.0.0.1:4040
+
+#
+# def run_fastapi():
+#     uvicorn.run(api, host="0.0.0.0", port=8000)  # <-- Запускаем FastAPI
+
 
 async def main():
     await dp.storage.set_data(key=bot_storage_key, data={})
@@ -20,6 +25,7 @@ if __name__ == "__main__":
     # Запускаем Flask в отдельном потоке
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
+
     # Запускаем асинхронного бота
     asyncio.run(main())
 

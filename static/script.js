@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Скрипт загружен, начинаем выполнение...");
-
     // Ожидаем небольшую задержку, чтобы убедиться, что все элементы загружены
     setTimeout(() => {
         const decreaseBtn = document.querySelector("#decrease");
@@ -9,14 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const priceElement = document.querySelector("#price");
         const addToCartBtn = document.querySelector("#add-to-cart");
         const confirmOrderBtn = document.querySelector("#confirm-order");
-
-
         if (!decreaseBtn || !increaseBtn || !quantitySpan || !priceElement || !addToCartBtn) {
             console.error("❌ Ошибка: Один из элементов не найден на странице!");
             return;
         }
-
-
 
         let pricePizzaElement = document.querySelector("#price");
         let basePrice = parseFloat(pricePizzaElement.getAttribute("data-price")); // Берём цену из HTML
@@ -30,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 priceElement.textContent = (basePrice * quantity).toFixed(2) + "€";
             }
         });
-
         increaseBtn.addEventListener("click", function () {
             quantity++;
             quantitySpan.textContent = quantity;
@@ -57,17 +51,16 @@ document.addEventListener("DOMContentLoaded", function () {
     let quantity = parseInt(document.querySelector("#quantity").textContent); // Количество
 
     function addToCart(pizzaName, pizzaPrice, quantity) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || []; // Загружаем корзину из localStorage
-    let item = cart.find(p => p.name === pizzaName); // Ищем пиццу в корзине
+        let frontSrotage = JSON.parse(localStorage.getItem("cart")) || []; // Загружаем корзину из localStorage
+    let item = frontSrotage.find(p => p.name === pizzaName); // Ищем пиццу в корзине
     if (item) {
         item.quantity += quantity; // Если уже есть, увеличиваем количество
     } else {
-        cart.push({ name: pizzaName, quantity: quantity, price:pizzaPrice }); // Иначе добавляем новый товар
+        frontSrotage.push({ name: pizzaName, quantity: quantity, price:pizzaPrice }); // Иначе добавляем новый товар
     }
-    localStorage.setItem("cart", JSON.stringify(cart)); // Сохраняем обратно в localStorage
-    console.log("Корзина обновлена:", cart); // Проверяем в консоли
+    localStorage.setItem("cart", JSON.stringify(frontSrotage)); // Сохраняем обратно в localStorage
+    console.log("Корзина обновлена:", frontSrotage); // Проверяем в консоли
 }
-
     console.log(`🍕 Добавляем пиццу (ID: ${pizzaId}, ${pizzaName}, ${pizzaPrice} €, ${quantity} шт.) в корзину...`);
 
 

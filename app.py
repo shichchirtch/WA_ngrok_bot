@@ -1,5 +1,8 @@
 from flask import Flask, render_template, url_for, request, redirect, jsonify
-from external_functions import send_telegram_message, update_bot_database
+from external_functions import send_telegram_message
+import datetime
+import pytz
+from python_db import users_db
 
 app = Flask(__name__)
 
@@ -16,22 +19,17 @@ pizzas = [
 
 cart = []  # Корзина для хранения выбранных пицц
 
-# @app.after_request
-# def add_header(response):
-#     response.headers['X-Frame-Options'] = 'ALLOW-FROM https://web.telegram.org'
-#     response.headers['Content-Security-Policy'] = "frame-ancestors 'self' https://web.telegram.org"
-#     return response
-
-# @app.after_request
-# def add_header(response):
-#     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-#     response.headers['Content-Security-Policy'] = "frame-ancestors *"
-#     return response
-
 @app.route('/receive_telegram_data', methods=['POST'])
 def receive_telegram_data():
     data = request.json  # Получаем JSON с фронта
-    print("📦 Полученные данные от Telegram:", data)  # Логируем в консоль
+    print("📦 Полученные данные от Telegram:")
+    for key, value in data.items():
+        if key != "user":
+            print(key, value)
+        else:
+            for x, y in data[key].items():
+                print(x, y)
+
     return jsonify({"success": True, "received_data": data})  # Отправляем ответ
 
 @app.route("/")
@@ -57,7 +55,8 @@ def cart_page():
         data = request.get_json()
 
         print("Полученные данные:", data)  # ✅ Проверяем, что приходит на сервер
-        user_id = data.get("user_id", 'not data')
+        user_name = data.get('name')
+        user_id = data.get('user_id')
         address = data.get("address")  #   это извлечение значения по ключу "address" из словаря data
         phone = data.get("phone")
         payment = data.get("payment")
@@ -69,7 +68,7 @@ def cart_page():
             return jsonify({"success": False, "error": "Заполните все поля!"}), 400
 
         message = f"🛒 *Заказ оформлен!*\n" \
-                  f"👤 *Заказчик:* {request.remote_addr}\n" \
+                  f"👤 *Заказчик:* {user_name}\n" \
                   f"📍 *Адрес:* {address}\n" \
                   f"📞 *Телефон:* {phone}\n" \
                   f"💳 *Оплата:* {payment}\n" \
@@ -78,6 +77,7 @@ def cart_page():
         total_price = 0  # Переменная для подсчёта суммы заказа
 
         # Перебираем товары в заказе
+        order_user = f'{user_name}, {phone}'
         for item in order:
             print('item = ', item)
             name = item.get("name", "Неизвестный товар")
@@ -86,9 +86,13 @@ def cart_page():
             total_price += price * quantity
 
             message += f"• {name} x{quantity} - {price * quantity} €\n"
+            order_user+=f"• {name} x{quantity} - {price * quantity} €"
 
         message += f"\n💰 *Сумма к оплате:* {total_price} €"
-
+        berlin_tz = pytz.timezone("Europe/Berlin")
+        a = datetime.datetime.now(berlin_tz).replace(second=0, microsecond=0)
+        formatted_time = a.strftime("%H:%M %d.%m.%Y")
+        order_user+=f'Total {total_price} Data : {formatted_time}'
         print('Telgram Сообщение = ', message)  # Логируем заказ в консоль (для проверки)
         if not order:
             return jsonify({"success": False, "error": "Заказ пуст!"}), 400
@@ -97,7 +101,11 @@ def cart_page():
         # Симуляция оформления заказа (можно заменить на логику сохранения в БД)
         print(f"Заказ оформлен! Адрес: {address}, Телефон: {phone}, Оплата: {payment}")
         # Обновляем базу данных бота
-        update_bot_database(user_id, address, phone, payment)
+        us_dict = users_db[user_id]['orders']
+        us_index = len(us_dict) +1
+        us_dict[us_index] = order_user
+        print('us_dict = ', us_dict)
+
         cart.clear()  # Очищаем корзину после оформления заказа
         return jsonify({"success": True})
 
@@ -138,3 +146,14 @@ def reset_cart():
     """Очищает корзину и возвращает JSON-ответ об успешной очистке."""
     cart.clear()
     return jsonify(success=True)
+
+
+# @app.route('/update_order', methods=['POST'])
+# def update_order():
+#     """Обрабатывает запрос на обновление заказа."""
+#     data = request.json
+#     print(f"Получены данные: {data}")
+#
+#     # Здесь можно добавить логику обработки (например, запись в БД)
+#
+#     return jsonify({"success": True})

@@ -19,12 +19,14 @@ async def process_start_command(message: Message, state: FSMContext):
         await state.set_state(FSM_ST.after_start)
         bot_dict = await dp.storage.get_data(key=bot_storage_key)  # Получаю словарь бота
         bot_dict[message.from_user.id] = {'name':user_name, 'order':{}}  # Создаю пустой словарь для заметок юзера
+
         await dp.storage.update_data(key=bot_storage_key, data=bot_dict)  # Обновляю словарь бота
+
         await message.answer(text=f'{html.bold(html.quote(user_name))}, '
                                   f'Hallo !\nI am MINI APP Bot'
                                   f'🎲',
                              parse_mode=ParseMode.HTML)
-        await message.answer("Нажми на кнопку, чтобы открыть приложение!", reply_markup=wa_kb)
+        await message.answer("Нажми на кнопку, чтобы открыть приложение!") #, reply_markup=wa_kb)
     else:
         print("else works")
 
